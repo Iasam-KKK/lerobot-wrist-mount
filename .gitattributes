@@ -1,0 +1,19 @@
+# Binary CAD assets must never get line-ending translation - CRLF conversion
+# silently corrupts binary STL and can break STEP parsers. Git's auto-detection
+# currently classifies these correctly, but that is inference; state it.
+*.stl   binary
+*.STL   binary
+*.step  binary
+*.stp   binary
+*.FCStd binary
+*.3mf   binary
+
+# Keep ROS/CAD text formats LF so they behave identically inside WSL2 and on
+# the Linux machines that will actually run this package.
+*.urdf  text eol=lf
+*.xacro text eol=lf
+*.sdf   text eol=lf
+*.rviz  text eol=lf
+*.yaml  text eol=lf
+*.py    text eol=lf
+*.sh    text eol=lf
