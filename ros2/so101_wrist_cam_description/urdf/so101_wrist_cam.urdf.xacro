@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<!--
+  SO-101 follower arm + wrist camera.
+
+  so101_base.urdf is TheRobotStudio's official URDF, unmodified except that the
+  relative "assets/" mesh paths became package:// URIs. xacro merges its <robot>
+  children into this one, so upstream can be re-pulled without touching the
+  camera definition.
+-->
+<robot name="so101_wrist_cam" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:arg name="camera"       default="true"/>
+  <xacro:arg name="camera_width" default="640"/>
+  <xacro:arg name="camera_height" default="480"/>
+  <xacro:arg name="camera_fps"   default="30"/>
+  <xacro:arg name="camera_tilt"  default="25.0"/>
+  <xacro:arg name="sim"          default="true"/>
+  <xacro:arg name="control"      default="true"/>
+  <xacro:arg name="controllers_file"
+             default="$(find so101_wrist_cam_description)/config/controllers.yaml"/>
+
+  <xacro:include filename="$(find so101_wrist_cam_description)/urdf/so101_base.urdf"/>
+  <xacro:include filename="$(find so101_wrist_cam_description)/urdf/wrist_camera.xacro"/>
+  <xacro:include filename="$(find so101_wrist_cam_description)/urdf/so101_control.xacro"/>
+
+  <!-- Anchor the arm; upstream leaves base_link floating. -->
+  <link name="world"/>
+  <joint name="world_to_base" type="fixed">
+    <parent link="world"/>
+    <child link="base_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <xacro:if value="$(arg camera)">
+    <xacro:so101_wrist_camera parent="gripper_link"
+                              name="wrist_cam"
+                              tilt_deg="$(arg camera_tilt)"
+                              width="$(arg camera_width)"
+                              height="$(arg camera_height)"
+                              fps="$(arg camera_fps)"/>
+  </xacro:if>
+
+  <xacro:if value="$(arg sim)">
+    <xacro:if value="$(arg control)">
+      <!-- joint_state_broadcaster publishes /joint_states here. -->
+      <xacro:so101_ros2_control controllers_file="$(arg controllers_file)"/>
+    </xacro:if>
+
+    <xacro:unless value="$(arg control)">
+      <!-- Fallback for a passive, uncontrolled arm. Publishes once per physics
+           step (~450 Hz at 1 ms); <update_rate> is NOT honoured by this system
+           (measured 454 Hz with it set to 50), so don't add it back thinking it
+           throttles anything. Raise <max_step_size> in the world instead.
+           Its default topic is the scoped
+           /world/<world>/model/<model>/joint_state, which is what
+           config/gz_bridge_passive.yaml maps. Overriding <topic> here silently
+           breaks that bridge and RViz then drops every camera frame. -->
+      <gazebo>
+        <plugin filename="gz-sim-joint-state-publisher-system"
+                name="gz::sim::systems::JointStatePublisher"/>
+      </gazebo>
+    </xacro:unless>
+  </xacro:if>
+
+</robot>

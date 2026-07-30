@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<!--
+  ros2_control wiring for the SO-101 in Gazebo Harmonic.
+
+  Macro args are lo/hi, not min/max: xacro treats min and max as global
+  builtins and warns "redefining global symbol" on every instantiation.
+
+  Joint limits below are NOT invented - they are the upstream values from
+  so101_base.urdf, repeated here because ros2_control reads its own limits:
+
+    shoulder_pan   -1.91986 .. 1.91986      elbow_flex   -1.69    .. 1.69
+    shoulder_lift  -1.74533 .. 1.74533      wrist_flex   -1.65806 .. 1.65806
+    wrist_roll     -2.74385 .. 2.84121      gripper      -0.174533 .. 1.74533
+
+  all with effort 10, velocity 10.
+
+  NOTE: when this is active, /joint_states comes from joint_state_broadcaster.
+  The gz-sim-joint-state-publisher-system must NOT also be loaded, or two
+  publishers fight over the same topic and TF jitters between them.
+-->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:macro name="so101_ros2_control" params="name:=GazeboSimSystem controllers_file">
+
+    <ros2_control name="${name}" type="system">
+      <hardware>
+        <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+      </hardware>
+
+      <xacro:macro name="so101_joint" params="joint lo hi">
+        <joint name="${joint}">
+          <command_interface name="position">
+            <param name="min">${lo}</param>
+            <param name="max">${hi}</param>
+          </command_interface>
+          <state_interface name="position"/>
+          <state_interface name="velocity"/>
+          <state_interface name="effort"/>
+        </joint>
+      </xacro:macro>
+
+      <xacro:so101_joint joint="shoulder_pan"  lo="-1.91986"  hi="1.91986"/>
+      <xacro:so101_joint joint="shoulder_lift" lo="-1.74533"  hi="1.74533"/>
+      <xacro:so101_joint joint="elbow_flex"    lo="-1.69"     hi="1.69"/>
+      <xacro:so101_joint joint="wrist_flex"    lo="-1.65806"  hi="1.65806"/>
+      <xacro:so101_joint joint="wrist_roll"    lo="-2.74385"  hi="2.84121"/>
+      <xacro:so101_joint joint="gripper"       lo="-0.174533" hi="1.74533"/>
+    </ros2_control>
+
+    <gazebo>
+      <plugin filename="gz_ros2_control-system"
+              name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+        <parameters>${controllers_file}</parameters>
+      </plugin>
+    </gazebo>
+
+  </xacro:macro>
+</robot>

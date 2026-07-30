@@ -1,0 +1,100 @@
+<?xml version="1.0"?>
+<!--
+  SO-101 wrist camera - URDF/Gazebo description.
+
+  Every default below was measured from the official CAD, not estimated.
+  Full derivation and provenance: docs/VERIFIED-GEOMETRY.md
+
+    bolt interface   2 x M3 @ 8.100 mm spacing on the wrist_roll_follower face
+    camera pattern   27.000 x 27.000 mm, M2, for a 32 x 32 mm UVC module
+    mount tilt       exactly 25.000 deg off the jaw axis
+    camera origin    (0.0025000, 0.0640735, 0.0027586) m in gripper_link
+
+  Sanity check that must keep holding: this places the gripper TCP
+  (gripper_frame_link) 9.00 deg off the optical axis at 120.1 mm - inside the
+  +-27.3 deg vertical FOV, so the camera sees the grasp. If you change xyz or
+  tilt_deg, re-check that angle or the camera may point at nothing.
+
+  Geometry matches TheRobotStudio's official
+  Optional/SO101_Wrist_Cam_Hex-Nut_Mount_32x32_UVC_Module, so a printed part
+  and this model agree.
+-->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:macro name="so101_wrist_camera"
+               params="parent:=gripper_link
+                       prefix:=''
+                       name:=wrist_cam
+                       xyz:='0.0025000 0.0640735 0.0027586'
+                       tilt_deg:=25.0
+                       width:=640 height:=480 fps:=30
+                       hfov:=1.204277
+                       near:=0.02 far:=10.0
+                       mass:=0.020
+                       visualize:=true
+                       show_body:=true">
+
+    <!-- The mount rotates the optical axis by tilt_deg away from the jaw axis.
+         link +X is the optical axis, so pitch = 90 deg - tilt_deg, yaw = -90 deg. -->
+    <xacro:property name="pitch" value="${radians(90.0 - tilt_deg)}"/>
+
+    <joint name="${prefix}${name}_joint" type="fixed">
+      <origin xyz="${xyz}" rpy="0 ${pitch} ${-pi/2}"/>
+      <parent link="${parent}"/>
+      <child link="${prefix}${name}_link"/>
+    </joint>
+
+    <link name="${prefix}${name}_link">
+      <xacro:if value="${show_body}">
+        <!-- 32 x 32 x 7 mm UVC module envelope, centred on the M2 pattern -->
+        <visual>
+          <origin xyz="-0.0035 0 0" rpy="0 ${pi/2} 0"/>
+          <geometry><box size="0.032 0.032 0.007"/></geometry>
+          <material name="wrist_cam_body"><color rgba="0.15 0.15 0.17 1.0"/></material>
+        </visual>
+        <collision>
+          <origin xyz="-0.0035 0 0" rpy="0 ${pi/2} 0"/>
+          <geometry><box size="0.032 0.032 0.007"/></geometry>
+        </collision>
+      </xacro:if>
+      <inertial>
+        <mass value="${mass}"/>
+        <!-- solid-cuboid inertia for the 32 x 32 x 7 mm envelope -->
+        <inertia ixx="${mass*(0.032*0.032 + 0.007*0.007)/12.0}" ixy="0" ixz="0"
+                 iyy="${mass*(0.032*0.032 + 0.007*0.007)/12.0}" iyz="0"
+                 izz="${mass*(0.032*0.032 + 0.032*0.032)/12.0}"/>
+      </inertial>
+    </link>
+
+    <!-- REP-103 optical frame: Z forward, X right, Y down. Image topics use this. -->
+    <joint name="${prefix}${name}_optical_joint" type="fixed">
+      <origin xyz="0 0 0" rpy="${-pi/2} 0 ${-pi/2}"/>
+      <parent link="${prefix}${name}_link"/>
+      <child link="${prefix}${name}_optical_frame"/>
+    </joint>
+    <link name="${prefix}${name}_optical_frame"/>
+
+    <gazebo reference="${prefix}${name}_link">
+      <sensor name="${name}" type="camera">
+        <topic>${name}/image</topic>
+        <gz_frame_id>${prefix}${name}_optical_frame</gz_frame_id>
+        <update_rate>${fps}</update_rate>
+        <always_on>1</always_on>
+        <visualize>${visualize}</visualize>
+        <camera>
+          <horizontal_fov>${hfov}</horizontal_fov>
+          <image>
+            <width>${width}</width>
+            <height>${height}</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>${near}</near>
+            <far>${far}</far>
+          </clip>
+        </camera>
+      </sensor>
+    </gazebo>
+
+  </xacro:macro>
+</robot>

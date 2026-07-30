@@ -1,0 +1,62 @@
+# ros2_control configuration for the SO-101 in Gazebo Harmonic.
+#
+# The arm and the gripper are separate controllers on purpose: a grasp needs to
+# close the jaws while the arm holds still, which one combined trajectory
+# controller makes awkward to script.
+
+controller_manager:
+  ros__parameters:
+    update_rate: 200  # Hz
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    arm_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    gripper_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+arm_controller:
+  ros__parameters:
+    joints:
+      - shoulder_pan
+      - shoulder_lift
+      - elbow_flex
+      - wrist_flex
+      - wrist_roll
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+    # Position-commanded joints in sim track well; these tolerances are loose
+    # enough that a goal is not rejected for a fraction of a degree.
+    state_publish_rate: 50.0
+    action_monitor_rate: 20.0
+    allow_partial_joints_goal: false
+    constraints:
+      stopped_velocity_tolerance: 0.05
+      goal_time: 2.0
+      shoulder_pan:   {trajectory: 0.5, goal: 0.1}
+      shoulder_lift:  {trajectory: 0.5, goal: 0.1}
+      elbow_flex:     {trajectory: 0.5, goal: 0.1}
+      wrist_flex:     {trajectory: 0.5, goal: 0.1}
+      wrist_roll:     {trajectory: 0.5, goal: 0.1}
+
+gripper_controller:
+  ros__parameters:
+    joints:
+      - gripper
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+    state_publish_rate: 50.0
+    action_monitor_rate: 20.0
+    allow_partial_joints_goal: false
+    constraints:
+      stopped_velocity_tolerance: 0.05
+      goal_time: 2.0
+      gripper: {trajectory: 0.5, goal: 0.1}

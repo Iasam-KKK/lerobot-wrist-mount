@@ -1,0 +1,20 @@
+# ros_gz_bridge topic map for the SO-101 wrist camera, WITH ros2_control.
+#
+# /joint_states is deliberately absent: joint_state_broadcaster publishes it on
+# the ROS side. Bridging Gazebo's joint_state as well would put two publishers
+# on one topic and make TF jitter between them.
+#
+# The image itself goes over ros_gz_image (transport-aware), not this bridge.
+# Keep gz_topic_name in step with <topic> in wrist_camera.xacro.
+
+- ros_topic_name: "/wrist_cam/camera_info"
+  gz_topic_name: "/wrist_cam/camera_info"
+  ros_type_name: "sensor_msgs/msg/CameraInfo"
+  gz_type_name: "gz.msgs.CameraInfo"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/clock"
+  gz_topic_name: "/clock"
+  ros_type_name: "rosgraph_msgs/msg/Clock"
+  gz_type_name: "gz.msgs.Clock"
+  direction: GZ_TO_ROS

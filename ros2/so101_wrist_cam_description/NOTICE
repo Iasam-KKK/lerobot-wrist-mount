@@ -1,0 +1,34 @@
+so101_wrist_cam_description
+Copyright 2026 iasam kakakhail
+
+Licensed under the Apache License, Version 2.0.
+
+------------------------------------------------------------------------------
+This product includes software and CAD-derived assets developed by
+The Robot Studio and the SO-ARM100 contributors.
+
+  Project : TheRobotStudio/SO-ARM100
+  Source  : https://github.com/TheRobotStudio/SO-ARM100
+  Commit  : fda892cba81032c46c40976a48c9ceadbf40a9ca  (2026-02-26)
+  Licence : Apache License 2.0
+
+Files derived from that project:
+
+  urdf/so101_base.urdf
+      Verbatim copy of Simulation/SO101/so101_new_calib.urdf, with relative
+      "assets/..." mesh paths rewritten to "package://" URIs. No geometry,
+      joint, frame, or inertial value was altered.
+
+  meshes/*.stl
+      Verbatim copies of Simulation/SO101/assets/*.stl.
+
+The wrist camera pose modelled in urdf/wrist_camera.xacro was measured from:
+
+  Optional/SO101_Wrist_Cam_Hex-Nut_Mount_32x32_UVC_Module
+  STEP/SO101/Follower_Specific/Wrist_Roll_Follower_SO101.step
+
+The printable camera mount itself is the work of Conor McGartholl and
+Philip Fung, distributed in the SO-ARM100 repository. This package models that
+mount in simulation; it does not replace or redistribute a modified version
+of it.
+------------------------------------------------------------------------------
