@@ -46,9 +46,17 @@
       </link>
     </model>
 
-    <!-- Graspable objects, sized for the SO-101's ~35 mm jaw opening. -->
+    <!-- Graspable objects, sized for the SO-101's ~35 mm jaw opening.
+
+         Positions are NOT arbitrary. Each sits where the wrist camera's optical
+         axis actually meets the table for one shot of the demo sweep, measured
+         from live tf by scripts/aim_points.py:
+           cube_red        mean of look-down / descend / wrist-roll aim points
+           cube_blue       the sweep-left aim point
+           cylinder_yellow the sweep-right aim point
+         Move the arm plan and these need re-measuring, or the shots miss. -->
     <model name="cube_red">
-      <pose>0.20 0.02 0.0125 0 0 0</pose>
+      <pose>0.245 -0.010 0.0125 0 0 0</pose>
       <link name="link">
         <inertial>
           <mass>0.05</mass>
@@ -69,7 +77,7 @@
     </model>
 
     <model name="cube_blue">
-      <pose>0.22 -0.06 0.0125 0 0 0.4</pose>
+      <pose>0.247 -0.073 0.0125 0 0 0.4</pose>
       <link name="link">
         <inertial>
           <mass>0.05</mass>
@@ -90,7 +98,7 @@
     </model>
 
     <model name="cylinder_yellow">
-      <pose>0.17 -0.10 0.02 0 0 0</pose>
+      <pose>0.254 0.103 0.02 0 0 0</pose>
       <link name="link">
         <inertial>
           <mass>0.04</mass>

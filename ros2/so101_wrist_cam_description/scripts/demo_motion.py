@@ -31,7 +31,10 @@ ARM_PLAN = [
     (12.0, [0.35, -0.50, 0.95, 0.60, 0.00]),  # sweep left across both cubes
     (16.0, [0.10, -0.75, 1.15, 0.70, 0.00]),  # descend toward the red cube
     (20.0, [0.10, -0.75, 1.15, 0.70, 0.90]),  # roll the wrist, camera orbits
-    (24.0, [0.00, -0.30, 0.70, 0.40, 0.00]),  # back up to a neutral view
+    # Ends on the opening framing rather than a raised neutral pose: the clip
+    # then loops seamlessly, and a raised pose aimed at x=0.358, which put the
+    # objects ~29 deg off-axis - just outside the +-27.3 deg vertical frame.
+    (24.0, [0.00, -0.55, 0.95, 0.60, 0.00]),  # return to the opening shot
 ]
 
 GRIPPER_PLAN = [(2.5, 1.20), (5.0, 0.10), (7.5, 1.20)]   # open, close, open
